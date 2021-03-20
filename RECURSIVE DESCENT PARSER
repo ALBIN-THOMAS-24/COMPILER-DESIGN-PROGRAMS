@@ -1,0 +1,113 @@
+//ALBIN THOMAS
+
+//RECURSIVE DESCENT PARSER
+
+
+
+
+#include<stdio.h>
+#include<string.h>
+#include<ctype.h>
+#include<malloc.h>
+
+
+void E();
+void E_DASH();
+void T();
+void T_DASH();
+void T_DOUBLE_DASH();
+void X();
+void X_DASH();
+
+
+char input_string[70]; //input string buffer
+int i,input_length,flag=0; //input-string-length
+
+
+
+void E()
+{
+  T();
+  if(flag==1)
+  {
+    E_DASH();
+  }
+}
+
+
+void T()
+{
+  if(input_string[i]=='a')
+  {
+    i++;
+    T_DASH();
+    flag=1;
+  }
+}
+void E_DASH()
+{
+  if(input_string[i]=='+')
+  {
+    i++;
+    T();
+    E_DASH();
+  }
+}
+
+void T_DASH()
+{
+  if(input_string[i]=='[')
+  {
+    i++;
+    T_DOUBLE_DASH();
+  }
+}
+void T_DOUBLE_DASH()
+{
+  if(input_string[i]==']')
+  {
+    i++;
+  }
+  else if(input_string[input_length-1]==']')
+  {
+    X();
+    i++;
+  }
+}
+void X()
+{
+  E();
+  X_DASH();
+}
+void X_DASH()
+{
+  if(input_string[i]==',')
+  {
+    i++;
+    E();
+  }
+}
+
+int main()
+{
+    printf("\nRECURSIVE  DESCENT  PARSER\n\n");
+    printf("THE GRAMMAR OBTAINED AFTER ELIMINATING LEFT RECURSION AND LEFT FACTORING ARE\n");
+    printf("\nE   -> TE'\nE'  -> +TE' | Epsilon\nT   -> aT'\nT'  -> [T'' | Epsilon\nT'' -> ]    | X]\nX   -> EX'\nX'  -> ,E   | Epsilon\n\n");
+    i=0;
+    printf("Enter  the  input string \n ");
+    scanf("%s", input_string);
+    printf("\n%s", input_string);
+    input_length=strlen(input_string);
+    E();
+    if(strlen(input_string)==i)
+    {
+      printf("\n\nThe input string is valid\n\n");
+    }
+    else
+    {
+      printf("\n\nThe input string is invalid\n\n");
+    }
+    return 0;
+}
+
+
