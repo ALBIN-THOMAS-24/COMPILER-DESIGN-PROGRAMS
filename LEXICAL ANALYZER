@@ -1,0 +1,176 @@
+
+
+/***********************LEXICAL ANALYZER***************************/
+#include<stdio.h>
+#include<ctype.h>
+#include<stdlib.h>
+#include<string.h>
+
+//Structure that contains symbol name,type,attribute,address
+struct symbolTable
+{
+  char symbol[60];
+  char type[60];
+  int attr;
+  char *addr;
+}tpointer[90];
+
+
+
+int sno=0;
+void sym_add(char symbol[],char type[])
+{
+  int k=0,flag=0;
+  if(sno!=0)
+  {
+    while(k<sno)
+    {
+      if(strcmp(symbol,tpointer[k].symbol)==0)
+      {
+        flag=1;
+      }
+      ++k;
+    }
+    if(flag==0)
+    {
+      strcpy(tpointer[sno].symbol,symbol);
+      strcpy(tpointer[sno].type,type);
+      tpointer[sno].attr=sno;//For id
+      tpointer[sno].addr=tpointer[sno].symbol;
+      sno++;//Next symbol data
+      flag=0;
+    }
+  }
+  else
+  { //First symbol data
+    strcpy(tpointer[sno].symbol,symbol);
+    strcpy(tpointer[sno].type,type);
+    tpointer[sno].attr=sno;
+    tpointer[sno].addr=tpointer[sno].symbol;
+    sno++;//Next symbol data
+  }
+}
+
+int isKeyword(char buffer[])
+{
+  char keywords[14][11]={"if","while","break","continue","double","else","do",
+                                  "int","float","return","char","long","void","printf"};
+	int i, flag = 0;
+	for(i = 0; i < 14; ++i)
+    {
+		    if(strcmp(keywords[i], buffer) == 0)
+        {
+			         flag = 1;
+			         break;
+		    }
+	  }
+	  return flag;
+}
+
+void main()
+{
+  
+    int i=0,j,k=0,l=0;
+	char ch, buffer[15], operators[] = "+-/*%=", delimiters[12]=" ,;(){}[]<>",
+	input[1000],string[20],keyw[20],oper,delim;
+	
+
+	printf("\n*****************Lexical Analyzer************************\n\n");
+    scanf("%[^\t]%*c", input);
+    printf("Input is\n\n%s",input);
+    printf("\n");
+    
+    printf("TOKENS ARE\n\n");
+
+    for(i=0;input[i]!='\0';i++)
+    {
+        ch=input[i];
+        if (ch == '#')
+        {
+            while(input[i]!='>')
+            {
+              printf("%c", input[i]);
+              i++;
+            }
+            printf("%c is pre-processor directive\n", input[i]);
+         }
+        else if(ch=='"')
+        {
+          j=0;
+          do
+          {
+            i++;
+            string[j]=input[i];
+            j++;
+          }while(input[i]!='"');
+          string[j-1]='\0';
+          sym_add(string,"String");
+          printf("%s is String\n",string);
+        }
+
+        for(j = 0; j < 6; ++j)
+        {
+          if(ch == operators[j])
+            {
+              oper=ch;
+              ch=' ';
+              break;
+            }
+        }
+
+        for(j = 0; j < 12; ++j)
+        {
+          if(ch == delimiters[j])
+          {
+            delim=ch;
+            ch=' ';
+            if((k != 0))
+            {
+              buffer[k] = '\0';
+              k = 0;
+              if(isKeyword(buffer) == 1)
+              {
+                printf("%s is keyword\n", buffer);
+                sym_add(buffer,"Keyword");
+              }
+              else if(atoi(buffer)!=0 && buffer[0] != '0')
+              {
+                  printf("%s is constant\n", buffer);
+                  sym_add(buffer,"Constant");
+              }
+              else
+              {
+                printf("%s is identifier\n", buffer);
+                sym_add(buffer,"Identifier");
+              }
+              if(oper!='\0')
+              {
+                  printf("%c is operator\n", oper);
+                  oper='\0';
+              }
+
+            }
+            if(delim!=' ')
+            {
+              printf("%c is delimeter\n", delim);
+            }
+            break;
+          }
+        }
+        if(isalnum(ch) || ch =='.')
+        {
+          buffer[k++] = ch;
+        }
+       
+      }
+      
+      printf("\n\n************************SYMBOL TABLE********************************\n");
+       printf("_____________________________________________________________________________\n");
+      printf("\nSymbol\t\t\t\tType\t\t\tAttribute\t\t\t\t\tAddress\n\n");
+      printf("_____________________________________________________________________________\n");
+      for(i=0;i<sno;i++)
+      {
+        printf("%s\t\t\t\t%s\t\t\t\t\tid%d\t\t\t\t\t%p\n",tpointer[i].symbol,tpointer[i].type,tpointer[i].attr,tpointer[i].addr);
+      }
+
+}
